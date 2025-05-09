@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
-import { MbsItem, SearchResultItem } from '@/types';
+import { SearchResultItem } from '@/types';
 
 // Simple regex to check if a string looks like an MBS item code (digits, possibly one trailing letter)
 const mbsItemCodeRegex = /^\d{1,5}[A-Z]?$/i;

@@ -11,7 +11,7 @@ export interface MbsItem {
     is_assist_eligible: boolean;
     is_anaes_eligible: boolean;
     explanatory_note_refs?: string | null; // Stored as TEXT, could be 'TN.8.2' or '["TN.8.2", "TN.8.15"]'
-    raw_xml_fragment?: any | null; // JSONB
+    raw_xml_fragment?: unknown | null; // JSONB
     effective_from: string; // Date string
     effective_to?: string | null; // Date string
     version_tag?: string | null;
