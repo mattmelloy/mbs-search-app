@@ -17,17 +17,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-100 text-gray-900`}>
-        <header className="bg-white shadow-sm">
+      <body className={`${inter.className} bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-slate-50`}>
+        <header className="bg-white dark:bg-slate-800 shadow-sm">
           <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-            <Link href="/" className="text-xl font-semibold text-indigo-600 hover:text-indigo-700">
+            <Link href="/" className="text-xl font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
               MBS Search
             </Link>
             <div className="space-x-4">
-              <Link href="/" className="text-gray-700 hover:text-indigo-600">
+              <Link href="/" className="text-gray-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
                 Item Search
               </Link>
-              <Link href="/specialist-fee-estimate" className="text-gray-700 hover:text-indigo-600">
+              <Link href="/specialist-fee-estimate" className="text-gray-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
                 Fee Estimator
               </Link>
             </div>
