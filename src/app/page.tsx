@@ -56,7 +56,7 @@ export default function HomePage() {
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
             <label htmlFor="searchQuery" className="block text-sm font-medium text-gray-700">
-              Search MBS Items (e.g., "30175" or "knee surgery")
+              Search MBS Items (e.g., 30175 or knee surgery)
             </label>
             <div className="mt-1 flex rounded-md shadow-sm">
               <input
