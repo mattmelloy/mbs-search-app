@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import { SearchResultItem } from '@/types'; // Assuming SearchResultItem is suitable
 
 // Helper function to format currency (can be moved to a utils file later)
