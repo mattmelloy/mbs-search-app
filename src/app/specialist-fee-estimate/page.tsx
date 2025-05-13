@@ -34,6 +34,9 @@ export default function SpecialistFeeEstimatePage() {
   const [overallTotalPatientOutOfPocket, setOverallTotalPatientOutOfPocket] = useState<number | null>(null);
   const [totalPrimaryItemsEffectiveScheduleFee, setTotalPrimaryItemsEffectiveScheduleFee] = useState<number | null>(null);
 
+  // Checkbox states for Medicare and Health Fund
+  const [hasMedicare, setHasMedicare] = useState(true);
+  const [hasHealthFund, setHasHealthFund] = useState(true);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +81,10 @@ export default function SpecialistFeeEstimatePage() {
     setAssistantOutOfPocket(null);
     setIsLoadingAssistantItem(false);
     setErrorAssistantItem(null);
+
+    // Reset checkbox states
+    setHasMedicare(true);
+    setHasHealthFund(true);
   };
 
   const handleItemNumberChange = (index: number, value: string) => {
@@ -151,6 +158,10 @@ export default function SpecialistFeeEstimatePage() {
       // Sort by original schedule fee descending for multiple operation rule
       const sortedPrimaryItems = [...validFetchedItems].sort((a, b) => b.schedule_fee - a.schedule_fee);
 
+      // Calculate the sum of original schedule fees for all primary items
+      // This will be used for the 51303 assistant calculation if applicable
+      const sumOfOriginalScheduleFees = sortedPrimaryItems.reduce((sum, item) => sum + item.schedule_fee, 0);
+
       let currentTotalPrimaryItemsEffectiveScheduleFee = 0;
       const calculatedPrimaryItemsData: PrimaryItemCalculatedData[] = sortedPrimaryItems.map((item, index) => {
         let scale = 1.0; // 100%
@@ -158,8 +169,8 @@ export default function SpecialistFeeEstimatePage() {
         else if (index >= 2) scale = 0.25; // 25%
 
         const effectiveScheduleFee = item.schedule_fee * scale;
-        const medicareRebateForItem = effectiveScheduleFee * 0.75;
-        const healthFundRebateForItem = effectiveScheduleFee * 0.25; // Rebates sum to effective schedule fee
+        const medicareRebateForItem = effectiveScheduleFee * 0.75 * (hasMedicare ? 1 : 0);
+        const healthFundRebateForItem = effectiveScheduleFee * 0.25 * (hasHealthFund ? 1 : 0);
         const itemOOP = 0; // Placeholder: OOP per item is complex with a single total charged fee
 
         currentTotalPrimaryItemsEffectiveScheduleFee += effectiveScheduleFee;
@@ -219,8 +230,8 @@ export default function SpecialistFeeEstimatePage() {
               setCalculatedAssistantRuleFee(fetchedAssistantItem.schedule_fee);
             } else { // 51303
               setAssistantItemDetails(null); // No specific schedule fee from 51303 itself is used for rule fee
-              // Use highestScheduleFeePrimaryItem here for the 20% calculation base
-              setCalculatedAssistantRuleFee(highestScheduleFeePrimaryItem.schedule_fee * 0.20); 
+              // Use the sum of original schedule fees of all primary items for the 20% calculation base
+              setCalculatedAssistantRuleFee(sumOfOriginalScheduleFees * 0.20);
             }
           } else {
             setErrorAssistantItem(`Details for assistant item ${assistantCodeRule} not found.`);
@@ -273,11 +284,11 @@ export default function SpecialistFeeEstimatePage() {
     let assHealthFundRebate = 0;
 
     if (determinedAssistantItemCode === "51300" && assistantItemDetails) { 
-      assMedicareRebate = assistantItemDetails.benefit_75_percent;
-      assHealthFundRebate = assistantItemDetails.schedule_fee - assistantItemDetails.benefit_75_percent;
+      assMedicareRebate = assistantItemDetails.benefit_75_percent * (hasMedicare ? 1 : 0);
+      assHealthFundRebate = (assistantItemDetails.schedule_fee - assistantItemDetails.benefit_75_percent) * (hasHealthFund ? 1 : 0);
     } else if (determinedAssistantItemCode === "51303" && calculatedAssistantRuleFee !== null) { 
-      assMedicareRebate = calculatedAssistantRuleFee * 0.75;
-      assHealthFundRebate = calculatedAssistantRuleFee * 0.25;
+      assMedicareRebate = calculatedAssistantRuleFee * 0.75 * (hasMedicare ? 1 : 0);
+      assHealthFundRebate = calculatedAssistantRuleFee * 0.25 * (hasHealthFund ? 1 : 0);
     }
     setAssistantMedicareRebate(assMedicareRebate);
     setAssistantHealthFundRebate(assHealthFundRebate);
@@ -285,7 +296,7 @@ export default function SpecialistFeeEstimatePage() {
     const assOOP = actualAssistantChargedFee - (assMedicareRebate + assHealthFundRebate);
     setAssistantOutOfPocket(assOOP);
 
-  }, [showAssistantFields, calculatedAssistantRuleFee, assistantAdditionalFeeInput, assistantItemDetails, determinedAssistantItemCode]);
+  }, [showAssistantFields, calculatedAssistantRuleFee, assistantAdditionalFeeInput, assistantItemDetails, determinedAssistantItemCode, hasMedicare, hasHealthFund]);
   
   useEffect(() => {
     if (!hasCalculated || primaryItemsData.length === 0) { // Check primaryItemsData length
@@ -360,6 +371,35 @@ export default function SpecialistFeeEstimatePage() {
               step="0.01"
               min="0"
             />
+          </div>
+
+          <div className="flex items-center space-x-6"> {/* Changed from space-y-2 and arranged horizontally */}
+            <div className="flex items-center">
+              <input
+                id="hasMedicare"
+                name="hasMedicare"
+                type="checkbox"
+                checked={hasMedicare}
+                onChange={(e) => setHasMedicare(e.target.checked)}
+                className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:bg-slate-700 dark:checked:bg-indigo-500"
+              />
+              <label htmlFor="hasMedicare" className="ml-2 block text-sm text-gray-900 dark:text-slate-300">
+                Patient has Medicare
+              </label>
+            </div>
+            <div className="flex items-center">
+              <input
+                id="hasHealthFund"
+                name="hasHealthFund"
+                type="checkbox"
+                checked={hasHealthFund}
+                onChange={(e) => setHasHealthFund(e.target.checked)}
+                className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:bg-slate-700 dark:checked:bg-indigo-500"
+              />
+              <label htmlFor="hasHealthFund" className="ml-2 block text-sm text-gray-900 dark:text-slate-300">
+                Patient has Health Fund
+              </label>
+            </div>
           </div>
           
           {showAssistantFields && (
