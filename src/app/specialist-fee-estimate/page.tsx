@@ -32,7 +32,7 @@ export default function SpecialistFeeEstimatePage() {
   const [overallTotalMedicareRebate, setOverallTotalMedicareRebate] = useState<number | null>(null);
   const [overallTotalHealthFundRebate, setOverallTotalHealthFundRebate] = useState<number | null>(null);
   const [overallTotalPatientOutOfPocket, setOverallTotalPatientOutOfPocket] = useState<number | null>(null);
-  const [totalPrimaryItemsEffectiveScheduleFee, setTotalPrimaryItemsEffectiveScheduleFee] = useState<number | null>(null);
+  // const [totalPrimaryItemsEffectiveScheduleFee, setTotalPrimaryItemsEffectiveScheduleFee] = useState<number | null>(null); // Removed as per ESLint error
 
   // Checkbox states for Medicare and Health Fund
   const [hasMedicare, setHasMedicare] = useState(true);
@@ -65,7 +65,7 @@ export default function SpecialistFeeEstimatePage() {
     setOverallTotalMedicareRebate(null);
     setOverallTotalHealthFundRebate(null);
     setOverallTotalPatientOutOfPocket(null);
-    setTotalPrimaryItemsEffectiveScheduleFee(null);
+    // setTotalPrimaryItemsEffectiveScheduleFee(null); // Removed as per ESLint error
     setHasCalculated(false);
     setError(null);
 
@@ -122,7 +122,7 @@ export default function SpecialistFeeEstimatePage() {
     setIsLoading(true);
 
     try {
-      const fetchedItemsPromises = activeItemInputs.map((itemNo, index) =>
+      const fetchedItemsPromises = activeItemInputs.map((itemNo) => // Removed unused 'index' parameter
         fetch(`/api/search-mbs?query=${encodeURIComponent(itemNo.trim())}`)
           .then(res => {
             if (!res.ok) throw new Error(`Item ${itemNo} fetch failed: ${res.statusText}`);
@@ -191,7 +191,7 @@ export default function SpecialistFeeEstimatePage() {
       });
       
       setPrimaryItemsData(calculatedPrimaryItemsData);
-      setTotalPrimaryItemsEffectiveScheduleFee(currentTotalPrimaryItemsEffectiveScheduleFee);
+      // setTotalPrimaryItemsEffectiveScheduleFee(currentTotalPrimaryItemsEffectiveScheduleFee); // Removed as per ESLint error
       setHasCalculated(true); // Mark that primary calculations are done
 
       // Assistant Logic (based on the highest schedule fee item from original list and total effective fee)
